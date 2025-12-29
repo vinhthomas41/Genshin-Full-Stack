@@ -13,6 +13,7 @@ const maininfo: React.FC<passedData> = ({character}) => {
           ) : (
             <>
               <h1>{character.name}</h1>
+              <img src = {character.images.hoyowiki_icon} />
             </>
           )) }
       </div>
