@@ -5,6 +5,10 @@ import Maininfo from './pageComponents/maininfo'
 import genshindb from 'genshin-db';
 import { collection, addDoc, deleteDoc, getDocs, query, where } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { getAuth, signInAnonymously, onAuthStateChanged } from "firebase/auth";
+
+const auth = getAuth();
+
 
 const charNames = genshindb.characters('names', {matchCategories: true});
 const charArray: genshindb.Character[] = []; 
@@ -19,6 +23,19 @@ export default function Home() {
   >(null);
   const[favoriteList, setFavoriteList] = useState<
   string[] > ([]);
+  const [userUid, setUserUid] = useState<string | null>(null);
+
+  useEffect(() => {
+    signInAnonymously(auth).catch((error) => console.error("Anonymous sign-in failed:", error));
+
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUserUid(user.uid);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const childCharacterChange = (newChar: genshindb.Character) => {
     setCurrentChar(newChar);
@@ -28,6 +45,7 @@ export default function Home() {
   console.log("Added");
   await addDoc(collection(db, "favorites"), {
     charId: characterName,
+    uid: auth.currentUser!.uid
   });
   }
 
@@ -35,7 +53,8 @@ async function removeFavorite(characterName: string) {
   console.log("remove");
   const q = query(
     collection(db, "favorites"),
-    where("charId", "==", characterName)
+    where("charId", "==", characterName),
+    where("uid", "==", auth.currentUser!.uid)
   );
 
   const snapshot = await getDocs(q);
@@ -47,14 +66,14 @@ async function removeFavorite(characterName: string) {
 
   useEffect(() => {
   async function loadFavorites() {
-    const snapshot = await getDocs(collection(db, "favorites"));
-    const ids = snapshot.docs.map((doc) => doc.data().charId);
-    console.log(ids);
+   const q = query(collection(db, "favorites"), where("uid", "==", userUid));
+    const snapshot = await getDocs(q);
+    const ids = snapshot.docs.map((doc) => doc.data().charId as string);
     setFavoriteList(ids);
   }
 
   loadFavorites();
-  }, []);
+  }, [userUid]);
 
 
   const favoriteEdit = (char: genshindb.Character) => {
