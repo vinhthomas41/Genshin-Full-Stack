@@ -3,9 +3,10 @@ import { useState } from "react";
 
 interface passedData {
   character: genshindb.Character | null;
+  unlockedCount?: number;
 }
 
-const Constellationinfo: React.FC<passedData> = ({ character }) => {
+const Constellationinfo: React.FC<passedData> = ({ character, unlockedCount }) => {
   const charConstellations = constellations(character!.name);
   const constellationList: ConstellationDetail[] | undefined = charConstellations
     ? [charConstellations.c1, charConstellations.c2, charConstellations.c3, charConstellations.c4, charConstellations.c5, charConstellations.c6]
@@ -42,14 +43,18 @@ const Constellationinfo: React.FC<passedData> = ({ character }) => {
             <p className="text-xs uppercase tracking-widest text-white/50">Constellations</p>
           </div>
           <ul className="divide-y divide-white/20">
-            {constellationList!.map((constellation, index) => (
+            {constellationList!.map((constellation, index) => {
+              const unlocked = unlockedCount !== undefined && index < unlockedCount;
+              const locked = unlockedCount !== undefined && !unlocked;
+              return (
               <li key={index}>
                 <div
                   onClick={() => constellationEdit(constellation.name)}
-                  className="flex flex-row px-4 py-2 text-sm uppercase tracking-wide hover:bg-white hover:text-black transition-colors cursor-pointer"
+                  className={`flex flex-row px-4 py-2 text-sm uppercase tracking-wide hover:bg-white hover:text-black transition-colors cursor-pointer ${locked ? "text-white/30" : ""}`}
                 >
-                  {/* TODO: style as locked/unlocked once build data (constellation count) is available */}
                   {`C${index + 1} — ${constellation.name}`}
+                  {unlocked && <span className="ml-2 text-xs text-white/50">(Unlocked)</span>}
+                  {locked && <span className="ml-2 text-xs text-white/30">(Locked)</span>}
                   <span className="ml-auto">{openConstellations.includes(constellation.name) ? "▲" : "▼"}</span>
                 </div>
                 {openConstellations.includes(constellation.name) && (
@@ -58,7 +63,8 @@ const Constellationinfo: React.FC<passedData> = ({ character }) => {
                   </div>
                 )}
               </li>
-            ))}
+              );
+            })}
           </ul>
         </div>
       ) : <></>}

@@ -1,0 +1,33 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Per-user favorites, written directly from the client with anonymous auth.
+    match /favorites/{docId} {
+      allow read: if request.auth != null && request.auth.uid == resource.data.uid;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.uid;
+      allow delete: if request.auth != null && request.auth.uid == resource.data.uid;
+      allow update: if false;
+    }
+
+    // Per-user linked Genshin UIDs (Phase 4) — same ownership pattern as favorites.
+    match /linkedUids/{docId} {
+      allow read: if request.auth != null && request.auth.uid == resource.data.uid;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.uid;
+      allow delete: if request.auth != null && request.auth.uid == resource.data.uid;
+      allow update: if false;
+    }
+
+    // Shared Enka Network response cache. Only app/api/enka/[uid]/route.ts touches
+    // this, via the Admin SDK (a service account), which bypasses these rules
+    // entirely — so denying everyone here still lets that route work.
+    match /enkaCache/{uid} {
+      allow read, write: if false;
+    }
+
+    // Deny anything not explicitly matched above.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

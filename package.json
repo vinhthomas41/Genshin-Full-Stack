@@ -10,7 +10,9 @@
     "format": "eslint \"**/*.{js,jsx,ts,tsx}\" --fix && prettier \"**/*.{js,jsx,ts,tsx,json}\" --write"
   },
   "dependencies": {
+    "@opentelemetry/api": "^1.9.1",
     "firebase": "^12.7.0",
+    "firebase-admin": "^14.3.0",
     "genshin-db": "^5.2.13",
     "next": "16.1.1",
     "react": "19.2.3",

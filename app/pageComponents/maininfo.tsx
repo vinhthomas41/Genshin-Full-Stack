@@ -2,13 +2,28 @@ import React, { useState } from "react";
 import genshindb from "genshin-db";
 import Talentinfo from "./maininfoComponents/talentinfo";
 import Constellationinfo from "./maininfoComponents/constellationinfo";
+import BuildInfo from "./maininfoComponents/buildinfo";
+import { findBuildMatches } from "@/lib/enkaBuildMatch";
+import { getCombatTalentLevels } from "@/lib/enkaSkillSlots";
+import type { LinkedUidRecord, ProfileState } from "@/lib/linkedUids";
 
 interface passedData {
   character: genshindb.Character | null;
+  linkedUids: LinkedUidRecord[];
+  profiles: { [genshinUid: string]: ProfileState };
 }
 
-const Maininfo: React.FC<passedData> = ({ character }) => {
+const Maininfo: React.FC<passedData> = ({ character, linkedUids, profiles }) => {
   const [currentLevel, setCurrentLevel] = useState<number | string>(100);
+  const [selectedBuildIndex, setSelectedBuildIndex] = useState(0);
+
+  // Reset the selected build tab when the character changes, without an Effect
+  // (https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes).
+  const [prevCharacterId, setPrevCharacterId] = useState(character?.id);
+  if (character?.id !== prevCharacterId) {
+    setPrevCharacterId(character?.id);
+    setSelectedBuildIndex(0);
+  }
 
   function changeLevel(event: React.ChangeEvent<HTMLInputElement>) {
     const value = event.target.value;
@@ -20,6 +35,13 @@ const Maininfo: React.FC<passedData> = ({ character }) => {
   }
 
   const displayLevel = currentLevel === "" ? 1 : Number(currentLevel);
+
+  const matches = character ? findBuildMatches(character, linkedUids, profiles) : [];
+  const selectedMatch = matches[Math.min(selectedBuildIndex, matches.length - 1)];
+  const talentLevelDefaults = selectedMatch
+    ? getCombatTalentLevels(selectedMatch.avatar.avatarId, selectedMatch.avatar.skillDepotId, selectedMatch.avatar.skillLevelMap)
+    : undefined;
+  const unlockedConstellations = selectedMatch?.avatar.talentIdList?.length;
 
   return (
     <div className="max-w-screen overflow-y-auto font-mono [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" id="mainInfo">
@@ -50,9 +72,22 @@ const Maininfo: React.FC<passedData> = ({ character }) => {
                 <li className="flex justify-between px-4 py-2 text-sm"><span className="text-white/50 uppercase text-xs">{character.substatText}</span>{character.stats(displayLevel, "+").specialized}</li>
               </ul>
             </div>
-            <Talentinfo character={character} />
-            <Constellationinfo character={character} />
+            <Talentinfo
+              key={`talent-${character.name}-${selectedMatch ? "build" : "nobuild"}`}
+              character={character}
+              talentLevelDefaults={talentLevelDefaults}
+            />
+            <Constellationinfo key={`constellation-${character.name}`} character={character} unlockedCount={unlockedConstellations} />
           </div>
+          {matches.length > 0 && (
+            <BuildInfo
+              key={`build-${character.name}`}
+              character={character}
+              matches={matches}
+              selectedIndex={selectedBuildIndex}
+              onSelectIndex={setSelectedBuildIndex}
+            />
+          )}
         </>
       )}
     </div>

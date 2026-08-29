@@ -4,24 +4,53 @@ import genshindb from "genshin-db";
 import starS from "../../public/selectedStar.png";
 import star from "../../public/Star.png";
 import Image from "next/image";
+import LinkedUidsPanel from "./linkedUidsPanel";
+import type { LinkedUidRecord, ProfileState } from "@/lib/linkedUids";
 
 interface passedData {
   charList: genshindb.Character[];
   sendData: (newChar: genshindb.Character) => void;
   favorites: string[] | null;
   favoriteClick: (char: genshindb.Character) => void;
+  userUid: string | null;
+  linkedUids: LinkedUidRecord[];
+  profiles: { [genshinUid: string]: ProfileState };
+  onLinkUid: (genshinUid: string) => void;
+  onUnlinkUid: (record: LinkedUidRecord) => void;
+  onRefreshUid: (genshinUid: string) => void;
 }
 
-const Sidebar: React.FC<passedData> = ({ charList, sendData, favorites, favoriteClick }) => {
+const Sidebar: React.FC<passedData> = ({
+  charList,
+  sendData,
+  favorites,
+  favoriteClick,
+  userUid,
+  linkedUids,
+  profiles,
+  onLinkUid,
+  onUnlinkUid,
+  onRefreshUid,
+}) => {
   const [favoriteMode, setFavoriteMode] = useState<boolean>(false);
 
   return (
     <div className="min-h-screen w-60 overflow-y-auto border-r-4 border-white font-mono flex-shrink-0  [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:transparent [&::-webkit-scrollbar-thumb]:bg-white" id="sidebar">
-      <div
-        className="sticky top-0 z-10 flex w-full cursor-pointer justify-center border-b-4 border-white bg-black py-3 text-xs uppercase tracking-widest hover:bg-white hover:text-black transition-colors"
-        onClick={() => setFavoriteMode(!favoriteMode)}
-      >
-        {favoriteMode ? <>Favorites: on</> : <>Favorites: off</>}
+      <div className="sticky top-0 z-10 border-b-4 border-white bg-black">
+        <div
+          className="flex w-full cursor-pointer justify-center border-b border-white/20 py-3 text-xs uppercase tracking-widest hover:bg-white hover:text-black transition-colors"
+          onClick={() => setFavoriteMode(!favoriteMode)}
+        >
+          {favoriteMode ? <>Favorites: on</> : <>Favorites: off</>}
+        </div>
+        <LinkedUidsPanel
+          userUid={userUid}
+          linkedUids={linkedUids}
+          profiles={profiles}
+          onLinkUid={onLinkUid}
+          onUnlinkUid={onUnlinkUid}
+          onRefreshUid={onRefreshUid}
+        />
       </div>
       <ul className="divide-y divide-white/20" id="sidebarList">
         {charList

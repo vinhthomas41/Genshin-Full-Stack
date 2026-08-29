@@ -1,8 +1,10 @@
 import genshindb, { talents, CombatTalentDetail, PassiveTalentDetail } from "genshin-db";
 import { useState } from "react";
+import type { CombatTalentLevelDefaults } from "@/lib/enkaSkillSlots";
 
 interface passedData {
   character: genshindb.Character | null;
+  talentLevelDefaults?: CombatTalentLevelDefaults;
 }
 
 // Talent label templates look like "1-Hit DMG|{param1:F1P}" — the part after "|" holds
@@ -22,14 +24,24 @@ function substituteTalentParams(label: string, parameters: { [key: string]: numb
   });
 }
 
-const Talentinfo: React.FC<passedData> = ({ character }) => {
+const Talentinfo: React.FC<passedData> = ({ character, talentLevelDefaults }) => {
   const charTalents = talents(character!.name);
   const talentList: (CombatTalentDetail | PassiveTalentDetail | undefined)[] | undefined = charTalents
     ? [charTalents.combat1, charTalents.combat2, charTalents.combat3, charTalents.combatju, charTalents.combatsp, charTalents.passive1, charTalents.passive2, charTalents.passive3, charTalents.passive4]
     : undefined;
 
   const [openTalents, changeTalents] = useState<string[]>([]);
-  const [talentLevels, setTalentLevels] = useState<{ [name: string]: number | string }>({});
+  const [talentLevels, setTalentLevels] = useState<{ [name: string]: number | string }>(() => {
+    // Seed the level selector from a linked build's actual talent levels, when one exists,
+    // instead of always defaulting to 1.
+    const initial: { [name: string]: number } = {};
+    if (charTalents && talentLevelDefaults) {
+      if (talentLevelDefaults.combat1 !== undefined) initial[charTalents.combat1.name] = talentLevelDefaults.combat1;
+      if (talentLevelDefaults.combat2 !== undefined) initial[charTalents.combat2.name] = talentLevelDefaults.combat2;
+      if (talentLevelDefaults.combat3 !== undefined) initial[charTalents.combat3.name] = talentLevelDefaults.combat3;
+    }
+    return initial;
+  });
 
   const changeTalentLevel = (name: string, event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;

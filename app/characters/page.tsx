@@ -8,12 +8,16 @@ import {
   collection,
   addDoc,
   deleteDoc,
+  doc,
   getDocs,
   query,
+  serverTimestamp,
   where,
 } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { getAuth, signInAnonymously, onAuthStateChanged } from "firebase/auth";
+import { fetchEnkaProfile } from "@/lib/enka";
+import type { LinkedUidRecord, ProfileState } from "@/lib/linkedUids";
 
 const auth = getAuth();
 
@@ -29,6 +33,8 @@ export default function Home() {
   >(null);
   const [favoriteList, setFavoriteList] = useState<string[]>([]);
   const [userUid, setUserUid] = useState<string | null>(null);
+  const [linkedUids, setLinkedUids] = useState<LinkedUidRecord[]>([]);
+  const [profiles, setProfiles] = useState<{ [genshinUid: string]: ProfileState }>({});
 
   useEffect(() => {
     signInAnonymously(auth).catch((error) =>
@@ -102,6 +108,62 @@ export default function Home() {
     }
   };
 
+  useEffect(() => {
+    if (!userUid) {
+      setLinkedUids([]);
+      return;
+    }
+    async function loadLinkedUids() {
+      const q = query(collection(db, "linkedUids"), where("uid", "==", userUid));
+      const snapshot = await getDocs(q);
+      setLinkedUids(
+        snapshot.docs.map((d) => ({ docId: d.id, genshinUid: d.data().genshinUid as string })),
+      );
+    }
+    loadLinkedUids();
+  }, [userUid]);
+
+  async function loadProfile(genshinUid: string) {
+    setProfiles((prev) => ({ ...prev, [genshinUid]: { status: "loading" } }));
+    try {
+      const result = await fetchEnkaProfile(genshinUid);
+      setProfiles((prev) => ({ ...prev, [genshinUid]: { status: "loaded", result } }));
+    } catch {
+      setProfiles((prev) => ({
+        ...prev,
+        [genshinUid]: { status: "error", message: "Couldn't reach the server." },
+      }));
+    }
+  }
+
+  useEffect(() => {
+    for (const { genshinUid } of linkedUids) {
+      if (!profiles[genshinUid]) loadProfile(genshinUid);
+    }
+    // profiles is intentionally excluded — this only fetches UIDs that don't have an entry yet.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [linkedUids]);
+
+  async function linkUid(genshinUid: string) {
+    if (!userUid) return;
+    const docRef = await addDoc(collection(db, "linkedUids"), {
+      uid: userUid,
+      genshinUid,
+      addedAt: serverTimestamp(),
+    });
+    setLinkedUids((prev) => [...prev, { docId: docRef.id, genshinUid }]);
+  }
+
+  async function unlinkUid(record: LinkedUidRecord) {
+    await deleteDoc(doc(db, "linkedUids", record.docId));
+    setLinkedUids((prev) => prev.filter((l) => l.docId !== record.docId));
+    setProfiles((prev) => {
+      const next = { ...prev };
+      delete next[record.genshinUid];
+      return next;
+    });
+  }
+
   return (
     <div className="bg-blueTest text-textColor1 flex h-screen">
       <Sidebar
@@ -109,8 +171,14 @@ export default function Home() {
         sendData={childCharacterChange}
         favorites={favoriteList}
         favoriteClick={favoriteEdit}
+        userUid={userUid}
+        linkedUids={linkedUids}
+        profiles={profiles}
+        onLinkUid={linkUid}
+        onUnlinkUid={unlinkUid}
+        onRefreshUid={loadProfile}
       />
-      <Maininfo character={currentChar} />
+      <Maininfo character={currentChar} linkedUids={linkedUids} profiles={profiles} />
     </div>
   );
 }

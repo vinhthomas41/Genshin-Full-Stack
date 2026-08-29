@@ -75,7 +75,9 @@ export interface EnkaProfile {
 }
 
 export type EnkaApiResult =
-  | (EnkaProfile & { source: "live" | "cache" })
+  // cachedAt (ms epoch) marks when this data was fetched from Enka — combine with
+  // ttl (seconds) to know when a manual refresh should be allowed again.
+  | (EnkaProfile & { source: "live" | "cache"; cachedAt: number })
   | { showcaseEmpty: true; playerInfo?: EnkaPlayerInfo; source: "live" | "cache" }
   | { error: string; retryAfterSeconds?: number };
 

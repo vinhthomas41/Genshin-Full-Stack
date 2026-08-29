@@ -11,6 +11,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "**.hoyoverse.com",
       },
+      {
+        protocol: "https",
+        hostname: "enka.network",
+      },
     ],
   },
 };

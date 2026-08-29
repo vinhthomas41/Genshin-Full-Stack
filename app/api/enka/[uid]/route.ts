@@ -1,12 +1,6 @@
 import { NextResponse } from "next/server";
-import {
-  doc,
-  getDoc,
-  setDoc,
-  serverTimestamp,
-  Timestamp,
-} from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { FieldValue, Timestamp } from "firebase-admin/firestore";
+import { getAdminDb } from "@/lib/firebaseAdmin";
 import type { EnkaProfile } from "@/lib/enka";
 
 // Enka asks for a descriptive User-Agent identifying the caller so they can reach out
@@ -34,18 +28,20 @@ export async function GET(
     );
   }
 
-  const cacheRef = doc(db, "enkaCache", uid);
-  // Firestore rules may not (yet) permit this server-side, unauthenticated read/write —
-  // that's a known open item (see plan notes on enkaCache being server-write-only).
-  // Treat a permission failure as a cache miss rather than failing the whole request.
+  // Reads/writes go through the Admin SDK (service account), which bypasses Firestore
+  // rules entirely — this is what lets enkaCache deny all client-SDK access while
+  // still working here. If credentials aren't configured yet, fail soft to a plain
+  // live fetch (no caching) instead of crashing the request.
+  let cacheRef: FirebaseFirestore.DocumentReference | undefined;
   try {
-    const cacheSnap = await getDoc(cacheRef);
-    if (cacheSnap.exists()) {
+    cacheRef = getAdminDb().collection("enkaCache").doc(uid);
+    const cacheSnap = await cacheRef.get();
+    if (cacheSnap.exists) {
       const cached = cacheSnap.data() as EnkaCacheDoc;
       const cachedAtMs = cached.cachedAt?.toMillis?.() ?? 0;
       const ttlMs = (cached.ttl ?? 0) * 1000;
       if (cachedAtMs && Date.now() < cachedAtMs + ttlMs) {
-        return NextResponse.json({ ...cached.data, source: "cache" });
+        return NextResponse.json({ ...cached.data, source: "cache", cachedAt: cachedAtMs });
       }
     }
   } catch (err) {
@@ -109,6 +105,7 @@ export async function GET(
 
   const raw: EnkaProfile = await response.json();
   const ttl = typeof raw.ttl === "number" ? raw.ttl : 60;
+  const fetchedAt = Date.now();
 
   if (!raw.avatarInfoList || raw.avatarInfoList.length === 0) {
     return NextResponse.json({
@@ -119,14 +116,14 @@ export async function GET(
   }
 
   try {
-    await setDoc(cacheRef, {
+    await (cacheRef ?? getAdminDb().collection("enkaCache").doc(uid)).set({
       data: raw,
       ttl,
-      cachedAt: serverTimestamp(),
+      cachedAt: FieldValue.serverTimestamp(),
     });
   } catch (err) {
     console.warn(`enkaCache write failed for ${uid}:`, err);
   }
 
-  return NextResponse.json({ ...raw, source: "live" });
+  return NextResponse.json({ ...raw, source: "live", cachedAt: fetchedAt });
 }
