@@ -66,9 +66,9 @@ const Maininfo: React.FC<passedData> = ({ character, linkedUids, profiles }) => 
                 </h1>
               </div>
               <ul className="divide-y divide-white/20">
-                <li className="flex justify-between px-4 py-2 text-sm"><span className="text-white/50 uppercase text-xs">HP</span>{character.stats(displayLevel, "+").hp}</li>
-                <li className="flex justify-between px-4 py-2 text-sm"><span className="text-white/50 uppercase text-xs">ATK</span>{character.stats(displayLevel, "+").attack}</li>
-                <li className="flex justify-between px-4 py-2 text-sm"><span className="text-white/50 uppercase text-xs">DEF</span>{character.stats(displayLevel, "+").defense}</li>
+                <li className="flex justify-between px-4 py-2 text-sm"><span className="text-white/50 uppercase text-xs">HP</span>{character.stats(displayLevel, "+").hp?.toFixed(2)}</li>
+                <li className="flex justify-between px-4 py-2 text-sm"><span className="text-white/50 uppercase text-xs">ATK</span>{character.stats(displayLevel, "+").attack?.toFixed(2)}</li>
+                <li className="flex justify-between px-4 py-2 text-sm"><span className="text-white/50 uppercase text-xs">DEF</span>{character.stats(displayLevel, "+").defense?.toFixed(2)}</li>
                 <li className="flex justify-between px-4 py-2 text-sm"><span className="text-white/50 uppercase text-xs">{character.substatText}</span>{character.stats(displayLevel, "+").specialized}</li>
               </ul>
             </div>

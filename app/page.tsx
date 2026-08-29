@@ -14,8 +14,8 @@ export default function Home() {
       <div className="relative z-10 grid grid-cols-3 border-b border-white/20 flex-3">
         <div className="col-span-2 border-r border-white/20 p-8">
           <p className="text-xs text-white/50 uppercase tracking-widest mb-2">Database</p>
-          <h2 className="text-5xl font-black leading-tight mb-4">The Complete Genshin Impact Character Index</h2>
-          <p className="text-white/60 text-sm max-w-lg">Stats, talents, and material requirements for every character</p>
+          <h2 className="text-5xl font-black leading-tight mb-4">Genshin Database</h2>
+          <p className="text-white/60 text-sm max-w-lg">Character info + Build Display</p>
         </div>
         <div className="p-8 flex flex-col justify-between">
           <p className="text-xs text-white/50 uppercase tracking-widest mb-2">Quick Access</p>
