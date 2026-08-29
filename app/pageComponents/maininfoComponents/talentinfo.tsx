@@ -5,6 +5,23 @@ interface passedData {
   character: genshindb.Character | null;
 }
 
+// Talent label templates look like "1-Hit DMG|{param1:F1P}" — the part after "|" holds
+// {paramKey:FORMAT} tokens referencing attributes.parameters[paramKey][level-1].
+// Formats seen in the data: "I" (integer), "P" (percent), "F<n>" (fixed decimals), and "F<n>P" (percent with decimals).
+function substituteTalentParams(label: string, parameters: { [key: string]: number[] }, level: number) {
+  return label.replace(/\{(\w+):([A-Za-z0-9]+)\}/g, (_match, paramKey: string, format: string) => {
+    const series = parameters[paramKey];
+    const raw = series ? series[level - 1] : undefined;
+    if (raw === undefined) return "?";
+    if (format === "I") return String(Math.round(raw));
+    const isPercent = format.includes("P");
+    const decimalsMatch = format.match(/F(\d)/);
+    const decimals = decimalsMatch ? Number(decimalsMatch[1]) : 0;
+    const scaled = Number((isPercent ? raw * 100 : raw).toFixed(decimals));
+    return isPercent ? `${scaled}%` : String(scaled);
+  });
+}
+
 const Talentinfo: React.FC<passedData> = ({ character }) => {
   const charTalents = talents(character!.name);
   const talentList: (CombatTalentDetail | PassiveTalentDetail | undefined)[] | undefined = charTalents
@@ -12,6 +29,21 @@ const Talentinfo: React.FC<passedData> = ({ character }) => {
     : undefined;
 
   const [openTalents, changeTalents] = useState<string[]>([]);
+  const [talentLevels, setTalentLevels] = useState<{ [name: string]: number | string }>({});
+
+  const changeTalentLevel = (name: string, event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    if (value == "") { setTalentLevels({ ...talentLevels, [name]: "" }); return; }
+    const current = Number(value);
+    if (current < 1) { setTalentLevels({ ...talentLevels, [name]: 1 }); }
+    else if (current > 15) { setTalentLevels({ ...talentLevels, [name]: 15 }); }
+    else { setTalentLevels({ ...talentLevels, [name]: current }); }
+  };
+
+  const displayTalentLevel = (name: string) => {
+    const level = talentLevels[name];
+    return level === undefined || level === "" ? 1 : Number(level);
+  };
 
   const talentEdit = (name: string) => {
     const newArray = [];
@@ -60,7 +92,32 @@ const Talentinfo: React.FC<passedData> = ({ character }) => {
                   {openTalents.includes(talent!.name) && (
                     <div className="border-t border-white/20 px-4 py-2">
                       <p className="text-xs text-white/70">{formatText(talent!.description)}</p>
-                      {isCombat(talent) && <p className="text-xs text-white/50 mt-2">{talent.attributes.labels}</p>}
+                      {isCombat(talent) && (
+                        <div className="mt-2">
+                          <p className="text-xs uppercase tracking-widest text-white/50">
+                            Talent Lvl{" "}
+                            <input
+                              className="bg-black w-10 border-b border-white text-center outline-none normal-case tracking-normal"
+                              type="number"
+                              value={talentLevels[talent.name] ?? 1}
+                              onClick={(e) => e.stopPropagation()}
+                              onChange={(e) => changeTalentLevel(talent.name, e)}
+                            />
+                          </p>
+                          <ul className="mt-2 divide-y divide-white/10">
+                            {talent.attributes.labels.map((label, i) => {
+                              const substituted = substituteTalentParams(label, talent.attributes.parameters, displayTalentLevel(talent.name));
+                              const [title, value] = substituted.split("|");
+                              return (
+                                <li key={i} className="flex justify-between py-1 text-xs text-white/50">
+                                  <span>{title}</span>
+                                  <span className="text-white/70">{value}</span>
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        </div>
+                      )}
                     </div>
                   )}
                 </li>

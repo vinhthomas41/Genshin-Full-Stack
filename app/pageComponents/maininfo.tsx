@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import genshindb from "genshin-db";
 import Talentinfo from "./maininfoComponents/talentinfo";
+import Constellationinfo from "./maininfoComponents/constellationinfo";
 
 interface passedData {
   character: genshindb.Character | null;
@@ -50,6 +51,7 @@ const Maininfo: React.FC<passedData> = ({ character }) => {
               </ul>
             </div>
             <Talentinfo character={character} />
+            <Constellationinfo character={character} />
           </div>
         </>
       )}
