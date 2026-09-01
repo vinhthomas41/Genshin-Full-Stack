@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import Sidebar from "../pageComponents/sidebar";
 import Maininfo from "../pageComponents/maininfo";
 import SiteNav from "../pageComponents/siteNav";
-import SiteBackground from "../pageComponents/siteBackground";
 import genshindb from "genshin-db";
 import "../globals.css";
 import {
@@ -36,7 +35,9 @@ export default function Home() {
   const [favoriteList, setFavoriteList] = useState<string[]>([]);
   const [userUid, setUserUid] = useState<string | null>(null);
   const [linkedUids, setLinkedUids] = useState<LinkedUidRecord[]>([]);
-  const [profiles, setProfiles] = useState<{ [genshinUid: string]: ProfileState }>({});
+  const [profiles, setProfiles] = useState<{
+    [genshinUid: string]: ProfileState;
+  }>({});
 
   useEffect(() => {
     signInAnonymously(auth).catch((error) =>
@@ -116,10 +117,16 @@ export default function Home() {
       return;
     }
     async function loadLinkedUids() {
-      const q = query(collection(db, "linkedUids"), where("uid", "==", userUid));
+      const q = query(
+        collection(db, "linkedUids"),
+        where("uid", "==", userUid),
+      );
       const snapshot = await getDocs(q);
       setLinkedUids(
-        snapshot.docs.map((d) => ({ docId: d.id, genshinUid: d.data().genshinUid as string })),
+        snapshot.docs.map((d) => ({
+          docId: d.id,
+          genshinUid: d.data().genshinUid as string,
+        })),
       );
     }
     loadLinkedUids();
@@ -129,11 +136,17 @@ export default function Home() {
     setProfiles((prev) => ({ ...prev, [genshinUid]: { status: "loading" } }));
     try {
       const result = await fetchEnkaProfile(genshinUid);
-      setProfiles((prev) => ({ ...prev, [genshinUid]: { status: "loaded", result } }));
+      setProfiles((prev) => ({
+        ...prev,
+        [genshinUid]: { status: "loaded", result },
+      }));
     } catch {
       setProfiles((prev) => ({
         ...prev,
-        [genshinUid]: { status: "error", message: "Couldn't reach the server." },
+        [genshinUid]: {
+          status: "error",
+          message: "Couldn't reach the server.",
+        },
       }));
     }
   }
@@ -167,10 +180,9 @@ export default function Home() {
   }
 
   return (
-    <div className="bg-blueTest text-textColor1 flex h-screen flex-col relative overflow-hidden">
-      <SiteBackground />
+    <div className="archive-database-shell archive-brutalist-type text-textColor1 relative flex h-screen flex-col overflow-hidden">
       <SiteNav />
-      <div className="relative z-10 flex flex-1 min-h-0">
+      <div className="archive-database-body relative z-10 flex min-h-0 flex-1">
         <Sidebar
           charList={charArray}
           sendData={childCharacterChange}
@@ -183,7 +195,11 @@ export default function Home() {
           onUnlinkUid={unlinkUid}
           onRefreshUid={loadProfile}
         />
-        <Maininfo character={currentChar} linkedUids={linkedUids} profiles={profiles} />
+        <Maininfo
+          character={currentChar}
+          linkedUids={linkedUids}
+          profiles={profiles}
+        />
       </div>
     </div>
   );

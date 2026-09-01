@@ -11,18 +11,20 @@ export default function SiteNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="relative z-10 flex items-center justify-between border-b-4 border-glow bg-black px-8 py-4 panel-glow">
-      <Link href="/" className="text-glow text-lg font-black uppercase tracking-widest">
-        Gnovia
+    <nav className="archive-nav relative z-10 flex items-center justify-between px-8 py-4">
+      <Link href="/" className="archive-nav-brand">
+        <span aria-hidden="true">✦</span>
+        <span>
+          <small>Gnovia</small>
+          Archive
+        </span>
       </Link>
-      <div className="flex gap-6">
+      <div className="archive-nav-links flex gap-2">
         {LINKS.map(({ href, label }) => (
           <Link
             key={href}
             href={href}
-            className={`text-xs uppercase tracking-widest transition-colors ${
-              pathname?.startsWith(href) ? "text-glow" : "text-white/50 hover:text-glow"
-            }`}
+            className={pathname?.startsWith(href) ? "is-active" : ""}
           >
             {label}
           </Link>

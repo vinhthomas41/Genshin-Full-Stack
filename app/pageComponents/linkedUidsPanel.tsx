@@ -75,7 +75,7 @@ const LinkedUidsPanel: React.FC<passedData> = ({
   return (
     <>
       <div
-        className="flex w-full cursor-pointer justify-center py-3 text-xs uppercase tracking-widest hover:bg-glow hover:text-black transition-colors"
+        className="hover:bg-glow flex w-full cursor-pointer justify-center py-3 text-xs tracking-widest uppercase transition-colors hover:text-black"
         onClick={() => setIsOpen(true)}
       >
         Linked UIDs{linkedUids.length > 0 ? ` (${linkedUids.length})` : ""}
@@ -83,43 +83,49 @@ const LinkedUidsPanel: React.FC<passedData> = ({
 
       {isOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 font-mono"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#030817]/80 backdrop-blur-sm"
           onClick={() => setIsOpen(false)}
         >
           <div
-            className="w-full max-w-md border-4 border-glow bg-black text-white panel-glow"
+            className="archive-panel w-full max-w-md text-white"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between border-b-4 border-glow px-4 py-2">
-              <p className="text-glow text-xs uppercase tracking-widest">Linked Genshin UIDs</p>
+            <div className="archive-panel-header flex items-center justify-between px-4 py-3">
+              <p className="text-glow text-xs tracking-widest uppercase">
+                Linked Genshin UIDs
+              </p>
               <button
-                className="px-2 text-xs uppercase tracking-widest hover:bg-glow hover:text-black transition-colors"
+                className="hover:bg-glow px-2 text-xs tracking-widest uppercase transition-colors hover:text-black"
                 onClick={() => setIsOpen(false)}
               >
                 Close
               </button>
             </div>
 
-            <div className="flex gap-2 border-b border-glow/20 p-4">
+            <div className="border-glow/20 flex gap-2 border-b p-4">
               <input
-                className="flex-1 border-b border-glow bg-black px-2 py-1 text-sm outline-none"
+                className="archive-search flex-1 px-3 py-2 text-sm outline-none"
                 type="text"
                 placeholder="9-digit UID"
                 value={newUidInput}
                 onChange={(e) => setNewUidInput(e.target.value)}
               />
               <button
-                className="border border-glow px-3 text-xs uppercase tracking-widest hover:bg-glow hover:text-black transition-colors"
+                className="border-glow hover:bg-glow border px-3 text-xs tracking-widest uppercase transition-colors hover:text-black"
                 onClick={linkUid}
               >
                 Link
               </button>
             </div>
-            {linkError && <p className="px-4 pb-2 text-xs text-red-400">{linkError}</p>}
+            {linkError && (
+              <p className="px-4 pb-2 text-xs text-red-400">{linkError}</p>
+            )}
 
-            <ul className="divide-y divide-glow/20 max-h-80 overflow-y-auto">
+            <ul className="divide-glow/20 max-h-80 divide-y overflow-y-auto">
               {linkedUids.length === 0 && (
-                <li className="px-4 py-3 text-xs text-white/50">No linked UIDs yet.</li>
+                <li className="px-4 py-3 text-xs text-white/50">
+                  No linked UIDs yet.
+                </li>
               )}
               {linkedUids.map((record) => {
                 const profile = profiles[record.genshinUid];
@@ -130,21 +136,27 @@ const LinkedUidsPanel: React.FC<passedData> = ({
                       <span className="font-bold">{record.genshinUid}</span>
                       <div className="flex items-center gap-2">
                         <button
-                          className="border border-glow/40 px-2 py-1 text-xs uppercase tracking-widest hover:bg-glow hover:text-black transition-colors disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-white"
-                          disabled={remaining > 0 || profile?.status === "loading"}
+                          className="border-glow/40 hover:bg-glow border px-2 py-1 text-xs tracking-widest uppercase transition-colors hover:text-black disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-white"
+                          disabled={
+                            remaining > 0 || profile?.status === "loading"
+                          }
                           onClick={() => onRefreshUid(record.genshinUid)}
                         >
-                          {remaining > 0 ? `Refresh (${remaining}s)` : "Refresh"}
+                          {remaining > 0
+                            ? `Refresh (${remaining}s)`
+                            : "Refresh"}
                         </button>
                         <button
-                          className="border border-glow/40 px-2 py-1 text-xs uppercase tracking-widest hover:bg-glow hover:text-black transition-colors"
+                          className="border-glow/40 hover:bg-glow border px-2 py-1 text-xs tracking-widest uppercase transition-colors hover:text-black"
                           onClick={() => onUnlinkUid(record)}
                         >
                           Remove
                         </button>
                       </div>
                     </div>
-                    <p className="mt-1 text-xs text-white/60">{describeProfile(profile)}</p>
+                    <p className="mt-1 text-xs text-white/60">
+                      {describeProfile(profile)}
+                    </p>
                   </li>
                 );
               })}

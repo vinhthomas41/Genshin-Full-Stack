@@ -1,7 +1,11 @@
 "use client";
 import { useMemo, useState } from "react";
 import Image from "next/image";
-import { groupMaterialsByType, materialIconUrl, type MaterialInfo } from "@/lib/materialInfo";
+import {
+  groupMaterialsByType,
+  materialIconUrl,
+  type MaterialInfo,
+} from "@/lib/materialInfo";
 
 interface passedData {
   materials: MaterialInfo[];
@@ -9,40 +13,52 @@ interface passedData {
   onSelect: (material: MaterialInfo) => void;
 }
 
-const MaterialSidebar: React.FC<passedData> = ({ materials, selected, onSelect }) => {
+const MaterialSidebar: React.FC<passedData> = ({
+  materials,
+  selected,
+  onSelect,
+}) => {
   const [search, setSearch] = useState("");
 
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase();
     if (!query) return materials;
-    return materials.filter((material) => material.name.toLowerCase().includes(query));
+    return materials.filter((material) =>
+      material.name.toLowerCase().includes(query),
+    );
   }, [materials, search]);
 
   const groups = useMemo(() => groupMaterialsByType(filtered), [filtered]);
 
   return (
-    <div className="h-full w-72 overflow-y-auto border-r-4 border-glow font-mono flex-shrink-0 panel-glow [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:transparent [&::-webkit-scrollbar-thumb]:bg-glow" id="materialSidebar">
-      <div className="sticky top-0 z-10 border-b-4 border-glow bg-black p-3">
+    <aside
+      className="archive-sidebar [&::-webkit-scrollbar-track]:transparent [&::-webkit-scrollbar-thumb]:bg-glow h-full w-72 flex-shrink-0 overflow-y-auto [&::-webkit-scrollbar]:w-1"
+      id="materialSidebar"
+    >
+      <div className="archive-sidebar-tools sticky top-0 z-10 p-3">
         <input
-          className="w-full border-b border-glow bg-black px-2 py-1 text-sm outline-none"
+          className="archive-search w-full px-3 py-2 text-sm outline-none"
           type="text"
           placeholder="Search materials…"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         />
-        <p className="mt-1 text-xs text-white/40">{filtered.length} / {materials.length} materials</p>
+        <p className="mt-1 text-xs text-white/40">
+          {filtered.length} / {materials.length} materials
+        </p>
       </div>
       {groups.map((group) => (
         <div key={group.label}>
-          <div className="border-b border-glow/40 bg-blueTest2 px-3 py-1.5 text-xs uppercase tracking-widest text-glow">
-            {group.label} <span className="text-white/40">({group.materials.length})</span>
+          <div className="archive-group-label text-glow px-3 py-2 text-xs tracking-widest uppercase">
+            {group.label}{" "}
+            <span className="text-white/40">({group.materials.length})</span>
           </div>
-          <ul className="divide-y divide-glow/10">
+          <ul className="archive-sidebar-list">
             {group.materials.map((material) => (
               <li
                 key={material.id}
-                className={`flex cursor-pointer items-center gap-2 p-2 px-3 text-sm uppercase tracking-wide transition-colors hover:bg-glow hover:text-black ${
-                  selected?.id === material.id ? "bg-glow text-black" : ""
+                className={`archive-sidebar-item flex cursor-pointer items-center gap-2 p-2 px-3 text-sm tracking-wide transition-colors ${
+                  selected?.id === material.id ? "is-selected" : ""
                 }`}
                 onClick={() => onSelect(material)}
               >
@@ -51,7 +67,7 @@ const MaterialSidebar: React.FC<passedData> = ({ materials, selected, onSelect }
                   alt={material.name}
                   width={32}
                   height={32}
-                  className="w-8 h-8 flex-shrink-0"
+                  className="h-8 w-8 flex-shrink-0"
                   unoptimized
                   onError={(e) => {
                     e.currentTarget.style.visibility = "hidden";
@@ -63,7 +79,7 @@ const MaterialSidebar: React.FC<passedData> = ({ materials, selected, onSelect }
           </ul>
         </div>
       ))}
-    </div>
+    </aside>
   );
 };
 

@@ -13,7 +13,11 @@ interface passedData {
   profiles: { [genshinUid: string]: ProfileState };
 }
 
-const Maininfo: React.FC<passedData> = ({ character, linkedUids, profiles }) => {
+const Maininfo: React.FC<passedData> = ({
+  character,
+  linkedUids,
+  profiles,
+}) => {
   const [currentLevel, setCurrentLevel] = useState<number | string>(100);
   const [selectedBuildIndex, setSelectedBuildIndex] = useState(0);
 
@@ -27,49 +31,85 @@ const Maininfo: React.FC<passedData> = ({ character, linkedUids, profiles }) => 
 
   function changeLevel(event: React.ChangeEvent<HTMLInputElement>) {
     const value = event.target.value;
-    if (value == "") { setCurrentLevel(""); return; }
+    if (value == "") {
+      setCurrentLevel("");
+      return;
+    }
     const current = Number(value);
-    if (current < 1) { setCurrentLevel(1); }
-    else if (current > 100) { setCurrentLevel(100); }
-    else { setCurrentLevel(current); }
+    if (current < 1) {
+      setCurrentLevel(1);
+    } else if (current > 100) {
+      setCurrentLevel(100);
+    } else {
+      setCurrentLevel(current);
+    }
   }
 
   const displayLevel = currentLevel === "" ? 1 : Number(currentLevel);
 
-  const matches = character ? findBuildMatches(character, linkedUids, profiles) : [];
-  const selectedMatch = matches[Math.min(selectedBuildIndex, matches.length - 1)];
+  const matches = character
+    ? findBuildMatches(character, linkedUids, profiles)
+    : [];
+  const selectedMatch =
+    matches[Math.min(selectedBuildIndex, matches.length - 1)];
   const talentLevelDefaults = selectedMatch
-    ? getCombatTalentLevels(selectedMatch.avatar.avatarId, selectedMatch.avatar.skillDepotId, selectedMatch.avatar.skillLevelMap)
+    ? getCombatTalentLevels(
+        selectedMatch.avatar.avatarId,
+        selectedMatch.avatar.skillDepotId,
+        selectedMatch.avatar.skillLevelMap,
+      )
     : undefined;
   const unlockedConstellations = selectedMatch?.avatar.talentIdList?.length;
 
   return (
-    <div className="max-w-screen overflow-y-auto font-mono [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" id="mainInfo">
+    <main
+      className="archive-detail max-w-screen overflow-y-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      id="mainInfo"
+    >
       {!character ? (
-        <h2 className="p-8 text-xs uppercase tracking-widest text-white/50">Choose a character.</h2>
+        <h2 className="p-8 text-xs tracking-widest text-white/50 uppercase">
+          Choose a character.
+        </h2>
       ) : (
         <>
-          <div className="border-b-4 border-glow mx-8 my-8 p-6 panel-glow">
-            <h1 className="text-center text-sm italic text-white/70">{`"${character.description}"`}</h1>
+          <div className="archive-quote archive-panel mx-8 my-8 p-6">
+            <h1 className="text-center text-sm text-white/70 italic">{`"${character.description}"`}</h1>
           </div>
-          <div id="boxes" className="flex flex-row items-start gap-8 px-8">
-            <div className="border-4 border-glow w-80 panel-glow">
-              <div className="border-b-4 border-glow px-4 py-2">
-                <h1 className="text-xs uppercase tracking-widest text-glow">
+          <div
+            id="boxes"
+            className="archive-card-grid flex flex-row items-start gap-6 px-8"
+          >
+            <div className="archive-panel w-80">
+              <div className="archive-panel-header px-4 py-3">
+                <h1 className="text-glow text-xs tracking-widest uppercase">
                   Stats — Lvl{" "}
                   <input
-                    className="bg-black w-12 border-b border-glow text-center outline-none"
+                    className="archive-inline-input w-12 text-center outline-none"
                     type="number"
                     value={currentLevel}
                     onChange={changeLevel}
                   />
                 </h1>
               </div>
-              <ul className="divide-y divide-glow/20">
-                <li className="flex justify-between px-4 py-2 text-sm"><span className="text-white/50 uppercase text-xs">HP</span>{character.stats(displayLevel, "+").hp?.toFixed(2)}</li>
-                <li className="flex justify-between px-4 py-2 text-sm"><span className="text-white/50 uppercase text-xs">ATK</span>{character.stats(displayLevel, "+").attack?.toFixed(2)}</li>
-                <li className="flex justify-between px-4 py-2 text-sm"><span className="text-white/50 uppercase text-xs">DEF</span>{character.stats(displayLevel, "+").defense?.toFixed(2)}</li>
-                <li className="flex justify-between px-4 py-2 text-sm"><span className="text-white/50 uppercase text-xs">{character.substatText}</span>{character.stats(displayLevel, "+").specialized}</li>
+              <ul className="archive-data-list">
+                <li className="flex justify-between px-4 py-2 text-sm">
+                  <span className="text-xs text-white/50 uppercase">HP</span>
+                  {character.stats(displayLevel, "+").hp?.toFixed(2)}
+                </li>
+                <li className="flex justify-between px-4 py-2 text-sm">
+                  <span className="text-xs text-white/50 uppercase">ATK</span>
+                  {character.stats(displayLevel, "+").attack?.toFixed(2)}
+                </li>
+                <li className="flex justify-between px-4 py-2 text-sm">
+                  <span className="text-xs text-white/50 uppercase">DEF</span>
+                  {character.stats(displayLevel, "+").defense?.toFixed(2)}
+                </li>
+                <li className="flex justify-between px-4 py-2 text-sm">
+                  <span className="text-xs text-white/50 uppercase">
+                    {character.substatText}
+                  </span>
+                  {character.stats(displayLevel, "+").specialized}
+                </li>
               </ul>
             </div>
             <Talentinfo
@@ -77,7 +117,11 @@ const Maininfo: React.FC<passedData> = ({ character, linkedUids, profiles }) => 
               character={character}
               talentLevelDefaults={talentLevelDefaults}
             />
-            <Constellationinfo key={`constellation-${character.name}`} character={character} unlockedCount={unlockedConstellations} />
+            <Constellationinfo
+              key={`constellation-${character.name}`}
+              character={character}
+              unlockedCount={unlockedConstellations}
+            />
           </div>
           {matches.length > 0 && (
             <BuildInfo
@@ -90,7 +134,7 @@ const Maininfo: React.FC<passedData> = ({ character, linkedUids, profiles }) => 
           )}
         </>
       )}
-    </div>
+    </main>
   );
 };
 

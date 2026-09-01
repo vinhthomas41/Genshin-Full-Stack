@@ -35,10 +35,13 @@ const Sidebar: React.FC<passedData> = ({
   const [favoriteMode, setFavoriteMode] = useState<boolean>(false);
 
   return (
-    <div className="h-full w-60 overflow-y-auto border-r-4 border-glow font-mono flex-shrink-0 panel-glow [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:transparent [&::-webkit-scrollbar-thumb]:bg-glow" id="sidebar">
-      <div className="sticky top-0 z-10 border-b-4 border-glow bg-black">
+    <aside
+      className="archive-sidebar [&::-webkit-scrollbar-track]:transparent [&::-webkit-scrollbar-thumb]:bg-glow h-full w-64 flex-shrink-0 overflow-y-auto [&::-webkit-scrollbar]:w-1"
+      id="sidebar"
+    >
+      <div className="archive-sidebar-tools sticky top-0 z-10">
         <div
-          className="flex w-full cursor-pointer justify-center border-b border-glow/20 py-3 text-xs uppercase tracking-widest hover:bg-glow hover:text-black transition-colors"
+          className={`archive-filter-toggle flex w-full cursor-pointer justify-center py-3 text-xs tracking-widest uppercase transition-colors ${favoriteMode ? "is-active" : ""}`}
           onClick={() => setFavoriteMode(!favoriteMode)}
         >
           {favoriteMode ? <>Favorites: on</> : <>Favorites: off</>}
@@ -52,35 +55,64 @@ const Sidebar: React.FC<passedData> = ({
           onRefreshUid={onRefreshUid}
         />
       </div>
-      <ul className="divide-y divide-glow/20" id="sidebarList">
+      <ul className="archive-sidebar-list" id="sidebarList">
         {charList
-          .filter((character) => (favoriteMode && favorites?.includes(character.name)) || !favoriteMode)
+          .filter(
+            (character) =>
+              (favoriteMode && favorites?.includes(character.name)) ||
+              !favoriteMode,
+          )
           .map((character) => (
             <li
               key={character.name}
-              className="flex cursor-pointer items-center p-2 px-3 text-sm uppercase tracking-wide hover:bg-glow hover:text-black transition-colors"
+              className="archive-sidebar-item flex cursor-pointer items-center p-2 px-3 text-sm tracking-wide transition-colors"
               onClick={() => sendData(character)}
             >
               {character.images.hoyowiki_icon ? (
-                <Image src={character.images.hoyowiki_icon} alt={character.name} width={40} height={40} className="w-10 mr-2" />
+                <Image
+                  src={character.images.hoyowiki_icon}
+                  alt={character.name}
+                  width={40}
+                  height={40}
+                  className="mr-2 w-10"
+                />
               ) : (
-                <div className="h-10 w-10 mr-2 border border-glow/20" />
+                <div className="border-glow/20 mr-2 h-10 w-10 border" />
               )}
               {character.name}
               <div className="group relative ml-auto w-7">
                 {!favorites!.includes(character.name) ? (
                   <>
-                    <Image src={star.src} alt="star" className="absolute opacity-100 group-hover:opacity-0" width={28} height={28} onClick={() => favoriteClick(character)} />
-                    <Image src={starS.src} alt="selected star" width={28} height={28} className="opacity-0 group-hover:opacity-100" />
+                    <Image
+                      src={star.src}
+                      alt="star"
+                      className="absolute opacity-100 group-hover:opacity-0"
+                      width={28}
+                      height={28}
+                      onClick={() => favoriteClick(character)}
+                    />
+                    <Image
+                      src={starS.src}
+                      alt="selected star"
+                      width={28}
+                      height={28}
+                      className="opacity-0 group-hover:opacity-100"
+                    />
                   </>
                 ) : (
-                  <Image src={starS.src} alt="selected star" width={28} height={28} onClick={() => favoriteClick(character)} />
+                  <Image
+                    src={starS.src}
+                    alt="selected star"
+                    width={28}
+                    height={28}
+                    onClick={() => favoriteClick(character)}
+                  />
                 )}
               </div>
             </li>
           ))}
       </ul>
-    </div>
+    </aside>
   );
 };
 
