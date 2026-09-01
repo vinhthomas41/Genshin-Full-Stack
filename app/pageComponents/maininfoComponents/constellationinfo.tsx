@@ -38,11 +38,11 @@ const Constellationinfo: React.FC<passedData> = ({ character, unlockedCount }) =
   return (
     <div>
       {charConstellations ? (
-        <div className="border-4 border-white w-80">
-          <div className="border-b-4 border-white px-4 py-2">
-            <p className="text-xs uppercase tracking-widest text-white/50">Constellations</p>
+        <div className="border-4 border-glow w-80 panel-glow">
+          <div className="border-b-4 border-glow px-4 py-2">
+            <p className="text-glow text-xs uppercase tracking-widest">Constellations</p>
           </div>
-          <ul className="divide-y divide-white/20">
+          <ul className="divide-y divide-glow/20">
             {constellationList!.map((constellation, index) => {
               const unlocked = unlockedCount !== undefined && index < unlockedCount;
               const locked = unlockedCount !== undefined && !unlocked;
@@ -50,15 +50,15 @@ const Constellationinfo: React.FC<passedData> = ({ character, unlockedCount }) =
               <li key={index}>
                 <div
                   onClick={() => constellationEdit(constellation.name)}
-                  className={`flex flex-row px-4 py-2 text-sm uppercase tracking-wide hover:bg-white hover:text-black transition-colors cursor-pointer ${locked ? "text-white/30" : ""}`}
+                  className={`flex flex-row px-4 py-2 text-sm uppercase tracking-wide hover:bg-glow hover:text-black transition-colors cursor-pointer ${locked ? "text-white/30" : ""}`}
                 >
                   {`C${index + 1} — ${constellation.name}`}
-                  {unlocked && <span className="ml-2 text-xs text-white/50">(Unlocked)</span>}
+                  {unlocked && <span className="ml-2 text-xs text-glow">(Unlocked)</span>}
                   {locked && <span className="ml-2 text-xs text-white/30">(Locked)</span>}
                   <span className="ml-auto">{openConstellations.includes(constellation.name) ? "▲" : "▼"}</span>
                 </div>
                 {openConstellations.includes(constellation.name) && (
-                  <div className="border-t border-white/20 px-4 py-2">
+                  <div className="border-t border-glow/20 px-4 py-2">
                     <p className="text-xs text-white/70">{formatText(constellation.description)}</p>
                   </div>
                 )}

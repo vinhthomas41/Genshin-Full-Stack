@@ -2,6 +2,8 @@
 import { useEffect, useState } from "react";
 import Sidebar from "../pageComponents/sidebar";
 import Maininfo from "../pageComponents/maininfo";
+import SiteNav from "../pageComponents/siteNav";
+import SiteBackground from "../pageComponents/siteBackground";
 import genshindb from "genshin-db";
 import "../globals.css";
 import {
@@ -165,20 +167,24 @@ export default function Home() {
   }
 
   return (
-    <div className="bg-blueTest text-textColor1 flex h-screen">
-      <Sidebar
-        charList={charArray}
-        sendData={childCharacterChange}
-        favorites={favoriteList}
-        favoriteClick={favoriteEdit}
-        userUid={userUid}
-        linkedUids={linkedUids}
-        profiles={profiles}
-        onLinkUid={linkUid}
-        onUnlinkUid={unlinkUid}
-        onRefreshUid={loadProfile}
-      />
-      <Maininfo character={currentChar} linkedUids={linkedUids} profiles={profiles} />
+    <div className="bg-blueTest text-textColor1 flex h-screen flex-col relative overflow-hidden">
+      <SiteBackground />
+      <SiteNav />
+      <div className="relative z-10 flex flex-1 min-h-0">
+        <Sidebar
+          charList={charArray}
+          sendData={childCharacterChange}
+          favorites={favoriteList}
+          favoriteClick={favoriteEdit}
+          userUid={userUid}
+          linkedUids={linkedUids}
+          profiles={profiles}
+          onLinkUid={linkUid}
+          onUnlinkUid={unlinkUid}
+          onRefreshUid={loadProfile}
+        />
+        <Maininfo character={currentChar} linkedUids={linkedUids} profiles={profiles} />
+      </div>
     </div>
   );
 }

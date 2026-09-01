@@ -51,16 +51,16 @@ const BuildInfo: React.FC<passedData> = ({ character, matches, selectedIndex, on
   const fightStatIds = elementalDmgId ? [...CORE_FIGHT_PROP_IDS, elementalDmgId] : CORE_FIGHT_PROP_IDS;
 
   return (
-    <div className="border-4 border-white mx-8 mt-8">
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b-4 border-white px-4 py-2">
-        <p className="text-xs uppercase tracking-widest text-white/50">Build — {selected.nickname}</p>
+    <div className="border-4 border-glow mx-8 mt-8 panel-glow">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b-4 border-glow px-4 py-2">
+        <p className="text-glow text-xs uppercase tracking-widest">Build — {selected.nickname}</p>
         {matches.length > 1 && (
           <div className="flex gap-2">
             {matches.map((match, index) => (
               <button
                 key={match.genshinUid}
                 className={`px-2 py-1 text-xs uppercase tracking-widest transition-colors ${
-                  index === selectedIndex ? "bg-white text-black" : "hover:bg-white hover:text-black"
+                  index === selectedIndex ? "bg-glow text-black" : "hover:bg-glow hover:text-black"
                 }`}
                 onClick={() => onSelectIndex(index)}
               >
@@ -72,7 +72,7 @@ const BuildInfo: React.FC<passedData> = ({ character, matches, selectedIndex, on
       </div>
 
       <div className="flex flex-wrap gap-8 p-4">
-        <ul className="w-44 divide-y divide-white/20">
+        <ul className="w-44 divide-y divide-glow/20">
           <li className="flex justify-between py-2 text-sm">
             <span className="text-xs uppercase text-white/50">Level</span>
             {level}
@@ -110,7 +110,7 @@ const BuildInfo: React.FC<passedData> = ({ character, matches, selectedIndex, on
           )}
         </div>
 
-        <ul className="w-56 divide-y divide-white/20">
+        <ul className="w-56 divide-y divide-glow/20">
           {fightStatIds.map((id) => {
             const value = avatar.fightPropMap[id];
             if (value === undefined) return null;
@@ -124,7 +124,7 @@ const BuildInfo: React.FC<passedData> = ({ character, matches, selectedIndex, on
         </ul>
       </div>
 
-      <div className="flex flex-wrap gap-4 border-t border-white/20 p-4">
+      <div className="flex flex-wrap gap-4 border-t border-glow/20 p-4">
         {SLOT_ORDER.map((slot) => {
           const equip = artifactsBySlot.get(slot);
           if (!equip) return null;
@@ -132,7 +132,7 @@ const BuildInfo: React.FC<passedData> = ({ character, matches, selectedIndex, on
           const mainstat = equip.flat.reliquaryMainstat;
           const mainstatFormatted = mainstat ? formatAppendProp(mainstat.mainPropId, mainstat.statValue) : undefined;
           return (
-            <div key={slot} className="w-44 border border-white/20 p-2">
+            <div key={slot} className="w-44 border border-glow/20 p-2">
               <div className="flex items-center gap-2">
                 <Image src={`${ICON_BASE}${equip.flat.icon}.png`} alt={SLOT_LABELS[slot]} width={32} height={32} unoptimized />
                 <div>

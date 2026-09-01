@@ -85,38 +85,38 @@ const Talentinfo: React.FC<passedData> = ({ character, talentLevelDefaults }) =>
   return (
     <div>
       {charTalents ? (
-        <div className="border-4 border-white w-80">
-          <div className="border-b-4 border-white px-4 py-2">
-            <p className="text-xs uppercase tracking-widest text-white/50">Talents</p>
+        <div className="border-4 border-glow w-80 panel-glow">
+          <div className="border-b-4 border-glow px-4 py-2">
+            <p className="text-glow text-xs uppercase tracking-widest">Talents</p>
           </div>
-          <ul className="divide-y divide-white/20">
+          <ul className="divide-y divide-glow/20">
             {talentList!
               .filter((talent) => talent && talent.description)
               .map((talent, index) => (
                 <li key={index}>
                   <div
                     onClick={() => talentEdit(talent!.name)}
-                    className="flex flex-row px-4 py-2 text-sm uppercase tracking-wide hover:bg-white hover:text-black transition-colors cursor-pointer"
+                    className="flex flex-row px-4 py-2 text-sm uppercase tracking-wide hover:bg-glow hover:text-black transition-colors cursor-pointer"
                   >
                     {talent!.name}
                     <span className="ml-auto">{openTalents.includes(talent!.name) ? "▲" : "▼"}</span>
                   </div>
                   {openTalents.includes(talent!.name) && (
-                    <div className="border-t border-white/20 px-4 py-2">
+                    <div className="border-t border-glow/20 px-4 py-2">
                       <p className="text-xs text-white/70">{formatText(talent!.description)}</p>
                       {isCombat(talent) && (
                         <div className="mt-2">
                           <p className="text-xs uppercase tracking-widest text-white/50">
                             Talent Lvl{" "}
                             <input
-                              className="bg-black w-10 border-b border-white text-center outline-none normal-case tracking-normal"
+                              className="bg-black w-10 border-b border-glow text-center outline-none normal-case tracking-normal"
                               type="number"
                               value={talentLevels[talent.name] ?? 1}
                               onClick={(e) => e.stopPropagation()}
                               onChange={(e) => changeTalentLevel(talent.name, e)}
                             />
                           </p>
-                          <ul className="mt-2 divide-y divide-white/10">
+                          <ul className="mt-2 divide-y divide-glow/10">
                             {talent.attributes.labels.map((label, i) => {
                               const substituted = substituteTalentParams(label, talent.attributes.parameters, displayTalentLevel(talent.name));
                               const [title, value] = substituted.split("|");

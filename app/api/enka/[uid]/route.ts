@@ -5,7 +5,7 @@ import type { EnkaProfile } from "@/lib/enka";
 
 // Enka asks for a descriptive User-Agent identifying the caller so they can reach out
 // if something's misbehaving, instead of silently rate-limiting/blocking it.
-const ENKA_USER_AGENT = "genshin-char-db/1.0 (contact: tv6269@eid.utexas.edu)";
+const ENKA_USER_AGENT = "genshin-char-db/1.0 (contact: vinhthomas41@gmail.com)";
 
 const UID_REGEX = /^\d{9}$/;
 

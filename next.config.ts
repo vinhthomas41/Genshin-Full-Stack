@@ -15,6 +15,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "enka.network",
       },
+      {
+        protocol: "https",
+        hostname: "gi.yatta.moe",
+      },
     ],
   },
 };

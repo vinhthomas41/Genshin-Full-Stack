@@ -22,7 +22,7 @@ export default function PolygonBackground() {
     const CONNECTION_DIST = 160;
     const SPEED = 0.25;
 
-    const BASE_COLOR = { r: 100, g: 130, b: 200 };
+    const BASE_COLOR = { r: 242, g: 200, b: 121 };
 
     let width = 0;
     let height = 0;
@@ -101,11 +101,14 @@ export default function PolygonBackground() {
           }
         }
 
-        const dotAlpha = 0.5;
+        const dotAlpha = 0.7;
         ctx!.beginPath();
         ctx!.arc(p.x, p.y, 1.5, 0, Math.PI * 2);
         ctx!.fillStyle = `rgba(${BASE_COLOR.r},${BASE_COLOR.g},${BASE_COLOR.b},${dotAlpha})`;
+        ctx!.shadowColor = `rgba(${BASE_COLOR.r},${BASE_COLOR.g},${BASE_COLOR.b},0.9)`;
+        ctx!.shadowBlur = 6;
         ctx!.fill();
+        ctx!.shadowBlur = 0;
       }
 
       animId = requestAnimationFrame(draw);
